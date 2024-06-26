@@ -1,11 +1,11 @@
 import express from "express"
 import mysql from "mysql2"
 import dotenv from "dotenv"
-
+import cors from "cors"
 dotenv.config();
 
 const app = express()
-
+app.use(cors())
 
 const db = mysql.createConnection({
     host: process.env.HOST,
