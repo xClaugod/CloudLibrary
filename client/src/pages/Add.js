@@ -1,12 +1,13 @@
 import React, { useState } from 'react'
 import { useNavigate } from 'react-router-dom';
+import Cookies from 'js-cookie';
 
 const Add = () => {
   const[book,setBook] = useState({
     title:"",
     description:"",
     price: null,
-    cover:""
+    cover:"",
   });
 
   const navigate = useNavigate();
@@ -20,18 +21,23 @@ const Add = () => {
   };
 
   const handleClick = e => {
+    const accessToken = Cookies.get('access_token');
+    if (!accessToken) {
+      return;
+    }
     e.preventDefault(); 
     fetch('http://localhost:8800/books', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        'Authorization': `Bearer ${accessToken}`
       },
       body: JSON.stringify(book),
     })
       .then(response => response.json())
       .then(data => {
         console.log('Success:', data);
-        navigate('/')
+        navigate('/books')
       })
       .catch((error) => {
         console.error('Error:', error);

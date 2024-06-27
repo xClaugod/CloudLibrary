@@ -1,14 +1,35 @@
 import React, { useEffect,useState } from 'react'
 import { Link } from 'react-router-dom';
+import Cookies from 'js-cookie';
 
 const Books = () => {
   const [books, setBooks] = useState([])
 
   useEffect(() => {
-        fetch('http://localhost:8800/books')
+    const accessToken = Cookies.get('access_token');
+    if (!accessToken) {
+      return;
+    }
+    console.log("accessToken",accessToken)
+
+    
+        fetch('http://localhost:8800/getUserBook', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${accessToken}`
+          }
+        })
+        .then(res => {
+          if (res.status === 401) {
+            console.log("Unauthorized")
+            return;
+          }
+          return res;
+        })
         .then(res => res.json())
         .then(books => setBooks(books))
         .catch(error => console.error('Errore durante la fetch:', error));
+
   },[])
 
   useEffect(() => {

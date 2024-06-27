@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useLocation, useNavigate } from 'react-router-dom';
 
 const Update = () => {
@@ -9,9 +9,18 @@ const Update = () => {
     cover:""
   });
 
+  const[isLoading,setIsLoading] = useState(true);
+
   const navigate = useNavigate();
   const location = useLocation();
   const bookId = location.pathname.split('/').pop()
+
+  useEffect(() => {
+    fetch(`http://localhost:8800/books/${bookId}`)
+    .then(res => res.json())
+    .then(book => setBook(book))
+    .catch(error => console.error('Error during fetch:', error));
+  },[])
 
   const handleChange = (e) => {
     setBook((prev)=>({
@@ -19,6 +28,7 @@ const Update = () => {
       [e.target.name]: e.target.value
 
     }));
+    setIsLoading(false);
   };
 
   const handleClick = e => {
@@ -33,21 +43,27 @@ const Update = () => {
       .then(response => response.json())
       .then(data => {
         console.log('Success:', data);
-        navigate('/')
+        navigate('/books')
       })
       .catch((error) => {
         console.error('Error:', error);
       });
   }
 
-  console.log(book)
   return (
     <div className='form'>
       <h1>Update the book</h1>
-      <input type="text" placeholder='title' name="title" onChange={handleChange}/>
-      <input type="text" placeholder='description' name="description" onChange={handleChange}/>
-      <input type="text" placeholder='price' name="price" onChange={handleChange}/>
-      <input type="text" placeholder='cover' name="cover" onChange={handleChange}/>  
+      {
+        !isLoading? 
+        <>
+          <input type="text" placeholder='title' value={book?.title} name="title" onChange={handleChange}/>
+          <input type="text" placeholder='description' value={book.description} name="description" onChange={handleChange}/>
+          <input type="text" placeholder='price' value={book.price} name="price" onChange={handleChange}/>
+          <input type="text" placeholder='cover' value={book.cover} name="cover" onChange={handleChange}/>
+        </>
+        :
+        <p>Loading...</p>
+      }
       <button onClick={handleClick} className='formButton'>Update</button>
     </div>
   )
