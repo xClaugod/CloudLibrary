@@ -31,19 +31,19 @@ const Books = () => {
   }
   
   return (
-    <div className='books'>{
-        books.map((book, index) => (
-            <div key={index} className='book'>
-                <h3>{book.title}</h3>
-                {book.cover && <img src={book.cover} alt={book.title} />}
-                <p>{book.description}</p>
-                <p>{book.price}</p>
-                <button className='delete' onClick={()=>handleDelete(book.idBook)}>Delete</button>
-                <button className='update'>Update</button>
-            </div>
-        ))
-    }
-    <button><Link to={"/add"}> Add new book</Link> </button>
+    <div>
+      <div className='books'>{books.map((book, index) => (
+        <div key={index} className='book'>
+          <h3>{book.title}</h3>
+          {book.cover && <img src={book.cover} alt={book.title} />}
+          <p>{book.description}</p>
+          <p>{book.price}</p>
+          <button className='delete' onClick={() => handleDelete(book.idBook)}>Delete</button>
+          <button className='update'><Link to={`/update/${book.idBook}`}>Update</Link></button>
+        </div>
+      ))}
+      </div>
+      <button><Link to={"/add"}> Add new book</Link> </button>
     </div>
   )
 }

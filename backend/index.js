@@ -58,6 +58,19 @@ app.delete("/books/:id",(req,res)=>{
     })
 })
 
+app.put("/books/:id",(req,res)=>{
+    const id = req.params.id
+    const title = req.body.title
+    const description = req.body.description
+    const cover = req.body.cover
+    const price = req.body.price
+    const sqlUpdate = "UPDATE books SET title = ?, description = ?, cover = ?, price = ? WHERE idBook = ?"
+    db.query(sqlUpdate,[title,description,cover,price,id],(err,result)=>{
+        if(err) return res.json(err)
+        return res.json("Book updated!")
+    })
+})
+
 app.listen(8800, ()=>{
     console.log("Backend server is running!")
 })
