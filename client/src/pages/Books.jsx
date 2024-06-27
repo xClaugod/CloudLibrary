@@ -25,6 +25,8 @@ const Books = () => {
                 {book.cover && <img src={book.cover} alt={book.title} />}
                 <p>{book.description}</p>
                 <p>{book.price}</p>
+                <button className='delete'>Delete</button>
+                <button className='update'>Update</button>
             </div>
         ))
     }
