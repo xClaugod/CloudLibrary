@@ -41,8 +41,9 @@ app.post("/books",(req,res)=>{
     const title = req.body.title
     const description = req.body.description
     const cover = req.body.cover
-    const sqlInsert = "INSERT INTO books (title, description, cover) VALUES (?,?,?)"
-    db.query(sqlInsert,[title,description,cover],(err,result)=>{
+    const price = req.body.price
+    const sqlInsert = "INSERT INTO books (title, description, cover, price) VALUES (?,?,?,?)"
+    db.query(sqlInsert,[title,description,cover,price],(err,result)=>{
         if(err) return res.json(err)
         return res.json("Book added!")
     })
