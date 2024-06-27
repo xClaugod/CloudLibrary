@@ -49,6 +49,15 @@ app.post("/books",(req,res)=>{
     })
 })
 
+app.delete("/books/:id",(req,res)=>{
+    const id = req.params.id
+    const sqlDelete = "DELETE FROM books WHERE idBook = ?"
+    db.query(sqlDelete,[id],(err,result)=>{
+        if(err) return res.json(err)
+        return res.json("Book deleted!")
+    })
+})
+
 app.listen(8800, ()=>{
     console.log("Backend server is running!")
 })
