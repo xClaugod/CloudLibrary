@@ -20,6 +20,8 @@ const Books = () => {
     })
         .then(response => response.json())
         .then(data => {
+            setUsername(data[0].username);
+            data[0].idBook &&
             setBooks(data.map(item => ({
                 idBook: item.idBook,
                 title: item.title,
@@ -27,14 +29,13 @@ const Books = () => {
                 price: item.price,
                 cover: item.cover
             })));
-            setUsername(data[0].username);
         })
         .catch(error => console.error('Error during fetch:', error));
 }, []);
 
 
   useEffect(() => {
-    console.log(books)
+    //console.log(books)
   },[books])
 
   useEffect(() => {

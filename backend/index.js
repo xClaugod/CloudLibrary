@@ -112,7 +112,7 @@ app.post("/getUserInfo",(req,res)=>{
             console.log("Unauthorized")
             return res.status(401).json("Unauthorized")
         }
-        const sqlSelect = "SELECT idUser,username,books.* FROM users inner join books on idUser = fkUser where idUser = ?;"
+        const sqlSelect = "SELECT idUser,username,books.* FROM users left join books on idUser = fkUser where idUser = ?;"
         db.query(sqlSelect,[user.idUser],(err,result)=>{
             if(err) return res.json(err)
             return res.json(result)
@@ -146,9 +146,12 @@ const storage = multer.diskStorage({
         const description = req.body.description;
         const price = req.body.price;
         const filePath = req.file.path;
+        console.log("User",user.idUser,filePath,title,description,price)
+
         const sqlInsert = "INSERT INTO books (title, description, cover, price, fkUser) VALUES (?,?,?,?,?)"
         db.query(sqlInsert,[title,description,filePath,price,user.idUser],(err,result)=>{
-            if(err) return res.json(err)
+            if(err) {            console.log("Uerrerereruthorized")
+                return res.json(err)}
             return res.json("Book added!")
         })
     });
