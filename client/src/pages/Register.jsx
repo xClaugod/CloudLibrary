@@ -41,33 +41,27 @@ const Register = () => {
     
 
     return (
-        <div>
-            <h2>Registrazione</h2>
             <form onSubmit={handleSubmit}>
-                <div>
-                    <label htmlFor="username">Username:</label>
-                    <input
-                        type="text"
-                        id="username"
-                        value={username}
-                        onChange={handleUsernameChange}
-                    />
-                </div>
-                <div>
-                    <label htmlFor="password">Password:</label>
-                    <input
-                        type="password"
-                        id="password"
-                        value={password}
-                        onChange={handlePasswordChange}
-                    />
-                </div>
-                <button type="submit">Registrati</button>
-            </form>
-            <p>
+                <h1>Sign Up</h1>
+                <input
+                    type="text"
+                    placeholder='Username'
+                    id="username"
+                    value={username}
+                    onChange={handleUsernameChange}
+                />
+                <input
+                    type="password"
+                    id="password"
+                    placeholder='Password'
+                    value={password}
+                    onChange={handlePasswordChange}
+                />
+                <button type="submit" className='btnLogin'>Registrati</button>
+                <p>
                 Hai già un account? <a href="/">Accedi</a>
-            </p>
-        </div>
+                </p>
+            </form>
     );
 };
 

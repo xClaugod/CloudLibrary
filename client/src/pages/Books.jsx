@@ -10,7 +10,11 @@ const Books = () => {
   const accessToken = Cookies.get('access_token');
  
   useEffect(() => {
-
+    if (!accessToken) {
+      console.error("Login first!")
+      navigate('/');
+      return;
+    }
     fetch('http://localhost:8800/getUserInfo', {
         method: 'POST',
         headers: {
@@ -30,17 +34,8 @@ const Books = () => {
                 cover: item.cover
             })));
         })
-        .catch(error => console.error('Error during fetch:', error));
+        .catch(error =>console.error('Error during fetch:', error));
 }, []);
-
-
-  useEffect(() => {
-    //console.log(books)
-  },[books])
-
-  useEffect(() => {
-    console.log(username)
-  },[username])
 
   const handleDelete = (id) => {
     console.log("kd",id)
@@ -57,7 +52,18 @@ const Books = () => {
       });
   }
 
+  const handleUpdate = (id,title,description,price,cover) => {
+    const bookData = {
+      title: title,
+      description: description,
+      price: price,
+      cover: cover
+    }
+    navigate(`/update/${id}`, { state: { bookData } });
+  }
+
   function logout() {
+    Cookies.remove('access_token');
     fetch('http://localhost:8800/logout', {
         method: 'POST',
         headers: {
@@ -70,21 +76,30 @@ const Books = () => {
   }
   
   return (
-    <div>
-      <p>Welcome {username} </p>
+    <div className='container'>
+      <div className='menu'>
+        <div>
+          <h2>Welcome back  </h2>
+          <h3>{username}</h3>
+        </div>
+        <button className='btnMenu'><Link to={"/add"} className='menuLink'> Add new book</Link> </button>
+        <button className='btnMenu' onClick={()=>logout()}>Logout</button>
+      </div>
       <div className='books'>{books.map((book, index) => (
         <div key={index} className='book'>
-          <h3>{book.title}</h3>
+          <h2>{book.title}</h2>
           {book.cover && <img src={`../../../backend/${book.cover}`} alt={`../../../backend/${book.cover}`} />}
           <p>{book.description}</p>
-          <p>{book.price}</p>
+          <p className='price'>€{book.price}</p>
+          <div className='actions'>
           <button className='delete' onClick={() => handleDelete(book.idBook)}>Delete</button>
-          <button className='update'><Link to={`/update/${book.idBook}`}>Update</Link></button>
+          <button className='update' onClick={() => handleUpdate(book.idBook,book.title,book.description,book.price,book.cover)}>Update</button>
+          </div>
         </div>
+        
       ))}
       </div>
-      <button><Link to={"/add"}> Add new book</Link> </button>
-      <button onClick={()=>logout()}>Logout</button>
+
 
     </div>
   )

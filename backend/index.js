@@ -41,6 +41,15 @@ app.get("/books",(req,res)=>{
     })
 })
 
+app.get("/books/:id",(req,res)=>{
+    const id = req.params.id
+    const sqlSelect = "SELECT * FROM books where idBook = ?"
+    db.query(sqlSelect,[id],(err,result)=>{
+        if(err) return res.json(err)
+        return res.json(result)
+    })
+})
+
 app.delete("/books/:id",(req,res)=>{
     const id = req.params.id
     const sqlDelete = "DELETE FROM books WHERE idBook = ?"

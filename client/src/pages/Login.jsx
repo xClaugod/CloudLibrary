@@ -42,28 +42,14 @@ const Login = () => {
             });
     };
 
-    const handleRegisterClick = () => {
-         navigate('/register');
-    };
-
     return (
-        <div>
-            <h1>Login</h1>
             <form onSubmit={handleSubmit}>
-                <label>
-                    Username:
-                    <input type="text" value={username} onChange={handleUsernameChange} />
-                </label>
-                <br />
-                <label>
-                    Password:
-                    <input type="password" value={password} onChange={handlePasswordChange} />
-                </label>
-                <br />
-                <button type="submit">Login</button>
+                <h1>Login</h1>
+                <input type="text" placeholder="Username" value={username} onChange={handleUsernameChange} />
+                <input type="password" placeholder="Passowrd" value={password} onChange={handlePasswordChange} />
+                <button type="submit" className='btnLogin'>Login</button>
+                <p>Don't you have an account?<a href="/register">Sign up</a></p>
             </form>
-            <button onClick={handleRegisterClick}>Registrati</button>
-        </div>
     );
 };
 

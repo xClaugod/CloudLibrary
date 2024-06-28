@@ -69,14 +69,14 @@ const Add = () => {
   
 
   return (
-    <div className='form'>
+    <form>
       <h1>Add new book</h1>
-      <input type="text" placeholder='title' name="title" onChange={handleChange}/>
-      <input type="text" placeholder='description' name="description" onChange={handleChange}/>
-      <input type="text" placeholder='price' name="price" onChange={handleChange}/>
-      <input type="file" name='cover' onChange={handleFileUpload} />
+      <input type="text" placeholder='title' required name="title" onChange={handleChange}/>
+      <input type="text" placeholder='description' required name="description" onChange={handleChange}/>
+      <input type="text" placeholder='price' required name="price" onChange={handleChange}/>
+      <input type="file" name='cover' required onChange={handleFileUpload} />
       <button onClick={handleClick} id="btnUpload" className='formButton'>Add</button>
-    </div>
+    </form>
   )
 }
 
