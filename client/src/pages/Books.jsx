@@ -57,7 +57,8 @@ const Books = () => {
       title: title,
       description: description,
       price: price,
-      cover: cover
+      cover: cover,
+      token: accessToken
     }
     navigate(`/update/${id}`, { state: { bookData } });
   }

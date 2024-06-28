@@ -14,7 +14,7 @@ const Add = () => {
   useEffect(() => {
     const accessToken = Cookies.get('access_token');
     if (!accessToken) {
-      navigate('/login');
+      navigate('/');
     }
   }, []);
 

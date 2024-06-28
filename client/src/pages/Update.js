@@ -17,6 +17,10 @@ const Update = () => {
   console.log(location)
 
   useEffect(() => {
+    if (!location.state) {
+      navigate('/');
+      return;
+    }
     setBook({
       title:location.state.bookData.title,
       description:location.state.bookData.description,
