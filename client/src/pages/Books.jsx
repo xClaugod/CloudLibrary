@@ -1,40 +1,45 @@
 import React, { useEffect,useState } from 'react'
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import Cookies from 'js-cookie';
 
 const Books = () => {
   const [books, setBooks] = useState([])
+  const [username, setUsername] = useState('')
 
+  const navigate = useNavigate();
+  const accessToken = Cookies.get('access_token');
+ 
   useEffect(() => {
-    const accessToken = Cookies.get('access_token');
-    if (!accessToken) {
-      return;
-    }
-    console.log("accessToken",accessToken)
 
-    
-        fetch('http://localhost:8800/getUserBook', {
-          method: 'POST',
-          headers: {
+    fetch('http://localhost:8800/getUserInfo', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
             'Authorization': `Bearer ${accessToken}`
-          }
+        },
+    })
+        .then(response => response.json())
+        .then(data => {
+            setBooks(data.map(item => ({
+                idBook: item.idBook,
+                title: item.title,
+                description: item.description,
+                price: item.price,
+                cover: item.cover
+            })));
+            setUsername(data[0].username);
         })
-        .then(res => {
-          if (res.status === 401) {
-            console.log("Unauthorized")
-            return;
-          }
-          return res;
-        })
-        .then(res => res.json())
-        .then(books => setBooks(books))
-        .catch(error => console.error('Errore durante la fetch:', error));
+        .catch(error => console.error('Error during fetch:', error));
+}, []);
 
-  },[])
 
   useEffect(() => {
     console.log(books)
   },[books])
+
+  useEffect(() => {
+    console.log(username)
+  },[username])
 
   const handleDelete = (id) => {
     console.log("kd",id)
@@ -50,13 +55,26 @@ const Books = () => {
         console.error('Error:', error);
       });
   }
+
+  function logout() {
+    fetch('http://localhost:8800/logout', {
+        method: 'POST',
+        headers: {
+            'Authorization': `Bearer ${accessToken}`
+        },
+    })
+        .then(response =>  console.log(response.json()))
+        .then(navigate('/'))
+        .catch(error => console.error('Error during fetch:', error));
+  }
   
   return (
     <div>
+      <p>Welcome {username} </p>
       <div className='books'>{books.map((book, index) => (
         <div key={index} className='book'>
           <h3>{book.title}</h3>
-          {book.cover && <img src={book.cover} alt={book.title} />}
+          {book.cover && <img src={`../../../backend/${book.cover}`} alt={`../../../backend/${book.cover}`} />}
           <p>{book.description}</p>
           <p>{book.price}</p>
           <button className='delete' onClick={() => handleDelete(book.idBook)}>Delete</button>
@@ -65,6 +83,8 @@ const Books = () => {
       ))}
       </div>
       <button><Link to={"/add"}> Add new book</Link> </button>
+      <button onClick={()=>logout()}>Logout</button>
+
     </div>
   )
 }

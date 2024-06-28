@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useNavigate } from 'react-router-dom';
 import Cookies from 'js-cookie';
 
@@ -7,8 +7,21 @@ const Add = () => {
     title:"",
     description:"",
     price: null,
-    cover:"",
   });
+
+  const[cover,setCover] = useState(null);
+
+  useEffect(() => {
+    const accessToken = Cookies.get('access_token');
+    if (!accessToken) {
+      navigate('/login');
+    }
+  }, []);
+
+  useEffect(() => {
+      if(!book || !cover) document.getElementById("btnUpload").disabled = true;
+      else document.getElementById("btnUpload").disabled = false;
+  }, [book, cover]);
 
   const navigate = useNavigate();
 
@@ -26,13 +39,18 @@ const Add = () => {
       return;
     }
     e.preventDefault(); 
-    fetch('http://localhost:8800/books', {
+    const formData = new FormData();
+    formData.append('title', book.title);
+    formData.append('description', book.description);
+    formData.append('price', book.price);
+    formData.append('cover', cover);
+
+    fetch('http://localhost:8800/upload', {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json',
         'Authorization': `Bearer ${accessToken}`
       },
-      body: JSON.stringify(book),
+      body: formData,
     })
       .then(response => response.json())
       .then(data => {
@@ -44,15 +62,20 @@ const Add = () => {
       });
   }
 
-  console.log(book)
+  const handleFileUpload = (event) => {
+    const file = event.target.files[0];
+    setCover(file);
+  };
+  
+
   return (
     <div className='form'>
       <h1>Add new book</h1>
       <input type="text" placeholder='title' name="title" onChange={handleChange}/>
       <input type="text" placeholder='description' name="description" onChange={handleChange}/>
       <input type="text" placeholder='price' name="price" onChange={handleChange}/>
-      <input type="text" placeholder='cover' name="cover" onChange={handleChange}/>  
-      <button onClick={handleClick} className='formButton'>Add</button>
+      <input type="file" name='cover' onChange={handleFileUpload} />
+      <button onClick={handleClick} id="btnUpload" className='formButton'>Add</button>
     </div>
   )
 }
