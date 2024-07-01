@@ -1,4 +1,4 @@
-version: '3'
+version: '3.8'
 services:
   backend:
     build: ./backend
@@ -7,30 +7,17 @@ services:
     volumes:
       - ./backend:/app
     environment:
-      NODE_ENV: development
-      DB_HOST: mysql
-      DB_USER: root
-      DB_PASSWORD: password
-      DB_NAME: booksLibrary
-    depends_on:
-      - mysql
+      - DB_HOST=${DB_HOST}
+      - DB_PORT=${DB_PORT}
+      - DB_USER=${DB_USER}
+      - DB_PASS=${DB_PASS}
+      - DB_NAME=${DB_NAME}
 
   client:
     build: ./client
     ports:
-      - "80:80"
+      - "3000:3000"
     volumes:
       - ./client:/app
     environment:
       NODE_ENV: production
-
-  mysql:
-    image: mysql:5.7
-    volumes:
-      - mysql-data:/var/lib/mysql
-    environment:
-      MYSQL_ROOT_PASSWORD: example
-      MYSQL_DATABASE: mydatabase
-
-volumes:
-  mysql-data:

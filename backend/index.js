@@ -12,20 +12,26 @@ dotenv.config();
 const app = express()
 app.use(cors())
 
-const db = mysql.createConnection({
-    host: process.env.HOST,
-    user: process.env.DB_USER,
-    password: process.env.PASSWORD,
-    database: process.env.DATABASE,
-})
+const connectWithRetry = () => {
+    const connection = mysql.createConnection({
+        host: process.env.HOST,
+        user: process.env.DB_USER,
+        password: process.env.PASSWORD,
+        database: process.env.DATABASE,
+        port : 3306
+    });
 
-db.connect((err) => {
-    if (err) {
-        console.error('Error connecting to the database:', err.stack);
-        return;
-    }
-    console.log('Connected to the database');
-});
+    connection.connect((err) => {
+        if (err) {
+            console.error('Error connecting to the database:', err.stack);
+            setTimeout(connectWithRetry, 5000); // Ritenta la connessione dopo 5 secondi
+        } else console.log('Connected to the database');
+    });
+    return connection;
+}
+
+const db = connectWithRetry();
+
 
 app.use(express.json())
 
