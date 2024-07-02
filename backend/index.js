@@ -10,7 +10,11 @@ import multer from "multer"
 dotenv.config();
 
 const app = express()
-app.use(cors())
+app.use(cors({
+    origin: '*',
+    methods: ['GET', 'POST', 'OPTIONS'],
+    allowedHeaders: ['Origin', 'Content-Type', 'Accept', 'Authorization']
+}));
 
 const connectWithRetry = () => {
     const connection = mysql.createConnection({
@@ -39,7 +43,7 @@ app.get("/",(req,res)=>{
     res.json("Welcome to the books library backend!")
 })
 
-app.get("/books",(req,res)=>{
+app.get("/api/books",(req,res)=>{
     const sqlSelect = "SELECT * FROM books"
     db.query(sqlSelect,(err,result)=>{
         if(err) return res.json(err)
@@ -47,7 +51,7 @@ app.get("/books",(req,res)=>{
     })
 })
 
-app.get("/books/:id",(req,res)=>{
+app.get("/api/books/:id",(req,res)=>{
     const id = req.params.id
     const sqlSelect = "SELECT * FROM books where idBook = ?"
     db.query(sqlSelect,[id],(err,result)=>{
@@ -56,7 +60,7 @@ app.get("/books/:id",(req,res)=>{
     })
 })
 
-app.delete("/books/:id",(req,res)=>{
+app.delete("/api/books/:id",(req,res)=>{
     const id = req.params.id
     const sqlDelete = "DELETE FROM books WHERE idBook = ?"
     db.query(sqlDelete,[id],(err,result)=>{
@@ -65,7 +69,7 @@ app.delete("/books/:id",(req,res)=>{
     })
 })
 
-app.put("/books/:id",(req,res)=>{
+app.put("/api/books/:id",(req,res)=>{
     const id = req.params.id
     const title = req.body.title
     const description = req.body.description
@@ -78,7 +82,7 @@ app.put("/books/:id",(req,res)=>{
     })
 })
 
-app.post("/login",(req,res)=>{
+app.post("/api/login",(req,res)=>{
     const username = req.body.username
     const password = req.body.password
     const sqlSelect = "SELECT * FROM users WHERE username = ?"
@@ -96,7 +100,7 @@ app.post("/login",(req,res)=>{
     })
 })
 
-app.post("/register",(req,res)=>{
+app.post("/api/register",(req,res)=>{
     const username = req.body.username
     const password = req.body.password
     const sqlSelect = "SELECT * FROM users WHERE username = ?"
@@ -114,13 +118,13 @@ app.post("/register",(req,res)=>{
     })
 })
 
-app.post("/logout",(req,res)=>{
+app.post("/api/logout",(req,res)=>{
     Cookies.remove('access_token');
     return res.json("Logged out!")
 })
 
 
-app.post("/getUserInfo",(req,res)=>{
+app.post("/api/getUserInfo",(req,res)=>{
     const accessToken = req.headers.authorization.split(' ')[1];
     jsonwebtoken.verify(accessToken, process.env.ACCESS_TOKEN_SECRET, (err, user) => {
         if (err) {
@@ -147,7 +151,7 @@ const storage = multer.diskStorage({
   
   const upload = multer({ storage });
   
-  app.post('/upload', upload.single('cover'), (req, res) => {
+  app.post('/api/upload', upload.single('cover'), (req, res) => {
     const accessToken = req.headers.authorization && req.headers.authorization.split(' ')[1];
     if (!accessToken) {
       return res.status(401).json("Unauthorized");
@@ -173,6 +177,6 @@ const storage = multer.diskStorage({
   });
 
 
-app.listen(8800, ()=>{
+app.listen(8800, '0.0.0.0',()=>{
     console.log("Backend server is running!")
 })

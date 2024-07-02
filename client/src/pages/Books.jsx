@@ -15,7 +15,7 @@ const Books = () => {
       navigate('/');
       return;
     }
-    fetch('http://localhost:8800/getUserInfo', {
+    fetch('/api/getUserInfo', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json',
@@ -39,7 +39,7 @@ const Books = () => {
 
   const handleDelete = (id) => {
     console.log("kd",id)
-    fetch(`http://localhost:8800/books/${id}`, {
+    fetch(`/api/books/${id}`, {
       method: 'DELETE',
     })
       .then(response => response.json())
@@ -65,7 +65,7 @@ const Books = () => {
 
   function logout() {
     Cookies.remove('access_token');
-    fetch('http://localhost:8800/logout', {
+    fetch('/api/logout', {
         method: 'POST',
         headers: {
             'Authorization': `Bearer ${accessToken}`

@@ -12,12 +12,17 @@ services:
       - DB_USER=${DB_USER}
       - DB_PASS=${DB_PASS}
       - DB_NAME=${DB_NAME}
+    networks:
+      - mynetwork
 
   client:
     build: ./client
     ports:
-      - "3000:3000"
-    volumes:
-      - ./client:/app
-    environment:
-      NODE_ENV: production
+      - "3000:80"
+    networks:
+      - mynetwork
+    depends_on:
+      - backend
+networks:
+  mynetwork:
+    driver: bridge

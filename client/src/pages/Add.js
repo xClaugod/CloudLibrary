@@ -45,7 +45,7 @@ const Add = () => {
     formData.append('price', book.price);
     formData.append('cover', cover);
 
-    fetch('http://localhost:8800/upload', {
+    fetch('/api/upload', {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${accessToken}`

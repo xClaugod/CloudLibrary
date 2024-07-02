@@ -20,7 +20,7 @@ const Login = () => {
         e.preventDefault();
 
         // Effettua la chiamata al backend utilizzando la fetch
-        fetch('http://localhost:8800/login', {
+        fetch('/api/login', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',

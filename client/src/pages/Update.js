@@ -44,7 +44,7 @@ const Update = () => {
 
   const handleClick = e => {
     e.preventDefault(); 
-    fetch(`http://localhost:8800/books/${bookId}`, {
+    fetch(`/api/books/${bookId}`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
