@@ -89,7 +89,8 @@ const Books = () => {
       <div className='books'>{books.map((book, index) => (
         <div key={index} className='book'>
           <h2>{book.title}</h2>
-          {book.cover && <img src={`../../../backend/${book.cover}`} alt={`../../../backend/${book.cover}`} />}
+          {book.cover && <img src={book.cover}
+ alt={`../../../backend/${book.cover}`} />}
           <p>{book.description}</p>
           <p className='price'>€{book.price}</p>
           <div className='actions'>

@@ -18,6 +18,14 @@ const Add = () => {
     }
   }, []);
 
+  useEffect(()=>{
+    console.log("change book",book)
+  },[book])
+
+  useEffect(()=>{
+    console.log("change cover",cover)
+  },[cover])
+
   useEffect(() => {
       if(!book || !cover) document.getElementById("btnUpload").disabled = true;
       else document.getElementById("btnUpload").disabled = false;
@@ -26,6 +34,7 @@ const Add = () => {
   const navigate = useNavigate();
 
   const handleChange = (e) => {
+    console.log("camhiato")
     setBook((prev)=>({
       ...prev,
       [e.target.name]: e.target.value
@@ -34,6 +43,7 @@ const Add = () => {
   };
 
   const handleClick = e => {
+    console.log("click")
     const accessToken = Cookies.get('access_token');
     if (!accessToken) {
       return;
@@ -48,7 +58,7 @@ const Add = () => {
     fetch('/api/upload', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${accessToken}`
+        'Authorization': `Bearer ${accessToken}`,
       },
       body: formData,
     })
