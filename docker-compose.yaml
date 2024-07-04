@@ -1,13 +1,13 @@
 services:
   backend:
-    build: ./backend
+    image: xclaugod/backend:2.6
     ports:
       - "8800:8800"
     networks:
       - mynetwork
 
   client:
-    build: ./client
+    image: xclaugod/client:1.1
     ports:
       - "3000:80"
     networks:

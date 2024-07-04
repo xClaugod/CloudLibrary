@@ -176,7 +176,7 @@ app.post("/api/register",(req,res)=>{
         if(result.length > 0){
             return res.json("Username already taken!")
         }
-        const hashedPassword = hashSync(password, 10);
+        const hashedPassword = bcrypt.hashSync(password, 10);
         const sqlInsert = "INSERT INTO users (username, password) VALUES (?,?)"
         db.query(sqlInsert,[username,hashedPassword],(err,result)=>{
             if(err) return res.json(err)
