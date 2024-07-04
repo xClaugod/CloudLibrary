@@ -7,12 +7,7 @@ const jsonwebtoken = require("jsonwebtoken");
 const Cookies = require("js-cookie");
 const multer = require("multer");
 const aws = require('aws-sdk');
-const S3 = require('aws-sdk/clients/s3');
 const fs = require ('fs');
-const { S3Client, PutObjectCommand } = require('@aws-sdk/client-s3');
-const { SignatureV4 } = require('@smithy/signature-v4');
-const { Sha256 } = require('@aws-crypto/sha256-js');
-const { createPresignedURL } = require('@aws-sdk/util-create-request');
 
 dotenv.config();
 
@@ -46,6 +41,11 @@ const db = connectWithRetry();
 
 
 app.use(express.json())
+const s3 = new aws.S3({
+  endpoint: new aws.Endpoint('https://fra1.digitaloceanspaces.com'),
+  accessKeyId: process.env.DO_SPACES_KEY,
+  secretAccessKey: process.env.DO_SPACES_SECRET
+});
 /*
 const s3 = new S3({
     region: process.env.AWS_REGION,
@@ -155,7 +155,7 @@ app.post("/api/register",(req,res)=>{
         if(result.length > 0){
             return res.json("Username already taken!")
         }
-        const hashedPassword = bcrypt.hashSync(password, 10);
+        const hashedPassword = hashSync(password, 10);
         const sqlInsert = "INSERT INTO users (username, password) VALUES (?,?)"
         db.query(sqlInsert,[username,hashedPassword],(err,result)=>{
             if(err) return res.json(err)
@@ -186,7 +186,7 @@ app.post("/api/getUserInfo",(req,res)=>{
 })
 
 async function uploadImageToS3(file) {
-    const fileStream = fs.createReadStream(file.path);
+    const fileStream = createReadStream(file.path);
     const fileName = file.originalname;
   
     const params = {
@@ -246,30 +246,39 @@ app.post('/api/upload', upload.single('cover'), (req, res) => {
     const price = req.body.price;
     const file = req.file;
 
+        // Leggi il file dall'archivio temporaneo
+    const fileContent = fs.readFileSync(file.path);
+
+    // Configura i parametri per il caricamento su DigitalOcean Spaces
+    const params = {
+      Bucket: 'books-images-storage',
+      Key: file.filename,
+      Body: fileContent,
+      ACL: 'public-read'
+    };
+    s3.upload(params, (err, data) => {
+      if (err) {
+        console.log("Error uploading to DigitalOcean Spaces");
+        return res.status(500).json(err);
+      }
+      const imageUrl = data.Location;
+            // Delete the file from local uploads directory
+      fs.unlink(file.path, (err) => {
+        if (err) {
+          console.error("Error deleting file from local storage:", err);
+        }
+        console.log("Temporary file deleted");
+      });
     const sqlInsert = "INSERT INTO books (title, description, cover, price, fkUser) VALUES (?,?,?,?,?)";
-    db.query(sqlInsert, [title, description, file.path, price, user.idUser], (err, result) => {
+    db.query(sqlInsert, [title, description,imageUrl, price, user.idUser], (err, result) => {
       if (err) {
         console.log("Error inserting into database");
         return res.json(err);
       }
       return res.json("Book added!");
     });
-/*
-    uploadImageToS3(file)
-      .then(data => {
-        const sqlInsert = "INSERT INTO books (title, description, cover, price, fkUser) VALUES (?,?,?,?,?)";
-        db.query(sqlInsert, [title, description, data.Location, price, user.idUser], (err, result) => {
-          if (err) {
-            console.log("Error inserting into database");
-            return res.json(err);
-          }
-          return res.json("Book added!");
-        });
-      })
-      .catch(err => {
-        console.error('Error uploading file to S3:', err);
-        res.status(500).json("Error uploading file");
-      });*/
+  });    
+
   });
 });
 
