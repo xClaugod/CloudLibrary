@@ -11,13 +11,23 @@ const fs = require ('fs');
 
 dotenv.config();
 
-
 const app = express()
 app.use(cors({
     origin: '*',
     methods: ['GET', 'POST', 'OPTIONS', 'PUT', 'DELETE'],
     allowedHeaders: ['Origin', 'Content-Type', 'Accept', 'Authorization']
 }));
+
+const storage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    cb(null, 'uploads/');
+  },
+  filename: (req, file, cb) => {
+    cb(null, Date.now() + '-' + file.originalname);
+  }
+});
+
+const upload = multer({ storage });
 
 const connectWithRetry = () => {
     const connection = mysql.createConnection({
@@ -31,7 +41,7 @@ const connectWithRetry = () => {
     connection.connect((err) => {
         if (err) {
             console.error('Error connecting to the database:', err.stack);
-            setTimeout(connectWithRetry, 5000); // Ritenta la connessione dopo 5 secondi
+            setTimeout(connectWithRetry, 5000); 
         } else console.log('Connected to the database');
     });
     return connection;
@@ -46,45 +56,7 @@ const s3 = new aws.S3({
   accessKeyId: process.env.DO_SPACES_KEY,
   secretAccessKey: process.env.DO_SPACES_SECRET
 });
-/*
-const s3 = new S3({
-    region: process.env.AWS_REGION,
-    s3ForcePathStyle: true,
-    signatureVersion: 'v4',
-    credentials: new aws.Credentials({
-      accessKeyId: '',
-      secretAccessKey: ''
-    })
-  });
-  
-  s3.config.update({
-    accessKeyId: '',
-    secretAccessKey: '',
-    signatureVersion: 'v4',
-    s3ForcePathStyle: true,
-    endpoint: `https://acp-123456789012.s3-accesspoint.us-east-1.amazonaws.com`,
-    httpOptions: {
-        agent: new require('https').Agent({
-          rejectUnauthorized: false
-        })
-    }
-  });*/
 
-/*
-const s3 = new S3Client({
-    region: process.env.AWS_REGION,
-    credentials: new aws.Credentials({
-      accessKeyId: '',
-      secretAccessKey: '',
-    }),
-    endpoint: `http://acp-123456789012.s3-accesspoint.us-east-1.amazonaws.com`,
-    httpOptions: {
-        agent: new require('https').Agent({
-          rejectUnauthorized: false
-        })
-    }
-  });
-*/
 app.get("/",(req,res)=>{
     res.json("Welcome to the books library backend!")
 })
@@ -119,14 +91,63 @@ app.put("/api/books/:id",(req,res)=>{
     const id = req.params.id
     const title = req.body.title
     const description = req.body.description
-    const cover = req.body.cover
     const price = req.body.price
-    const sqlUpdate = "UPDATE books SET title = ?, description = ?, cover = ?, price = ? WHERE idBook = ?"
-    db.query(sqlUpdate,[title,description,cover,price,id],(err,result)=>{
+    const sqlUpdate = "UPDATE books SET title = ?, description = ?, price = ? WHERE idBook = ?"
+    db.query(sqlUpdate,[title,description,price,id],(err,result)=>{
         if(err) return res.json(err)
         return res.json("Book updated!")
     })
 })
+
+app.put("/api/booksWithImage/:id", upload.single('cover'), (req, res) => {
+  const accessToken = req.headers.authorization && req.headers.authorization.split(' ')[1];
+  if (!accessToken) {
+    return res.status(401).json("Unauthorized");
+  }
+
+  jsonwebtoken.verify(accessToken, process.env.ACCESS_TOKEN_SECRET, (err, user) => {
+    if (err) {
+      console.log("Unauthorized");
+      return res.status(401).json("Unauthorized");
+    }
+    const id = req.params.id
+    const title = req.body.title;
+    const description = req.body.description;
+    const price = req.body.price;
+    const file = req.file;
+
+    const fileContent = fs.readFileSync(file.path);
+
+    const params = {
+      Bucket: 'books-images-storage',
+      Key: file.filename,
+      Body: fileContent,
+      ACL: 'public-read'
+    };
+    s3.upload(params, (err, data) => {
+      if (err) {
+        console.log("Error uploading to DigitalOcean Spaces");
+        return res.status(500).json(err);
+      }
+      const imageUrl = data.Location;
+      fs.unlink(file.path, (err) => {
+        if (err) {
+          console.error("Error deleting file from local storage:", err);
+        }
+        console.log("Temporary file deleted");
+      });
+      const sqlUpdate = "UPDATE books SET title = ?, description = ?, cover = ?, price = ? WHERE idBook = ?"
+      db.query(sqlUpdate, [title, description,imageUrl, price,id], (err, result) => {
+      if (err) {
+        console.log("Error updating book ");
+        return res.json(err);
+      }
+      return res.json("Book updated!")
+    });
+  });    
+
+  });
+});
 
 app.post("/api/login",(req,res)=>{
     const username = req.body.username
@@ -185,49 +206,8 @@ app.post("/api/getUserInfo",(req,res)=>{
     });
 })
 
-async function uploadImageToS3(file) {
-    const fileStream = createReadStream(file.path);
-    const fileName = file.originalname;
-  
-    const params = {
-      Bucket: process.env.AWS_S3_BUCKET_NAME,
-      Key: fileName,
-      Body: fileStream,
-    };
-  
-    try {
-     // await s3.send(new PutObjectCommand(params));
-     await s3.upload(params).promise();
 
-      return { Location: `https://${params.Bucket}.s3.${process.env.AWS_REGION}.amazonaws.com/${params.Key}` };
-    } catch (error) {
-      console.error(error);
-      return null;
-    }
-  }
-/*
-    function getBlobFromImage(filePath) {
-        return new Promise((resolve, reject) => {
-            fs.readFile(filePath, (err, data) => {
-                if (err) {
-                    reject(err);
-                } else {
-                    resolve(data); // Ritorna il contenuto del file come blob
-                }
-            });
-        });
-    }*/
-  // Configurazione Multer
-  const storage = multer.diskStorage({
-    destination: (req, file, cb) => {
-      cb(null, 'uploads/');
-    },
-    filename: (req, file, cb) => {
-      cb(null, Date.now() + '-' + file.originalname);
-    }
-  });
-  
-  const upload = multer({ storage });
+
 
 app.post('/api/upload', upload.single('cover'), (req, res) => {
   const accessToken = req.headers.authorization && req.headers.authorization.split(' ')[1];
@@ -246,10 +226,8 @@ app.post('/api/upload', upload.single('cover'), (req, res) => {
     const price = req.body.price;
     const file = req.file;
 
-        // Leggi il file dall'archivio temporaneo
     const fileContent = fs.readFileSync(file.path);
 
-    // Configura i parametri per il caricamento su DigitalOcean Spaces
     const params = {
       Bucket: 'books-images-storage',
       Key: file.filename,
@@ -262,7 +240,6 @@ app.post('/api/upload', upload.single('cover'), (req, res) => {
         return res.status(500).json(err);
       }
       const imageUrl = data.Location;
-            // Delete the file from local uploads directory
       fs.unlink(file.path, (err) => {
         if (err) {
           console.error("Error deleting file from local storage:", err);

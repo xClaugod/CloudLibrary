@@ -3,12 +3,14 @@ import { useLocation, useNavigate } from 'react-router-dom';
 
 const Update = () => {
   const[book,setBook] = useState({
+    id: null,
     title:"",
     description:"",
     price: null,
-    cover:""
   });
 
+  const[cover,setCover] = useState(null);
+  const[check,setCheck] = useState(false);
 
   const navigate = useNavigate();
   const location = useLocation();
@@ -21,18 +23,14 @@ const Update = () => {
       navigate('/');
       return;
     }
+    console.log("location.state",location.state)
     setBook({
+      id:bookId,
       title:location.state.bookData.title,
       description:location.state.bookData.description,
       price:location.state.bookData.price,
-      cover:location.state.bookData.cover
     })
   },[])
-
-  useEffect(() => {
-    console.log(book)
-  }
-  ,[book])
 
   const handleChange = (e) => {
     setBook((prev)=>({
@@ -44,22 +42,53 @@ const Update = () => {
 
   const handleClick = e => {
     e.preventDefault(); 
-    fetch(`/api/books/${bookId}`, {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(book),
-    })
-      .then(response => response.json())
-      .then(data => {
-        console.log('Success:', data);
-        navigate('/books')
+    if(check){
+      const formData = new FormData();
+      formData.append('title', book.title);
+      formData.append('description', book.description);
+      formData.append('price', book.price);
+      formData.append('cover', cover);
+  
+      fetch(`/api/booksWithImage/${bookId}`, {
+        method: 'PUT',
+        headers: {
+          'Authorization': `Bearer ${location.state.bookData.token}`,
+        },
+        body: formData,
       })
-      .catch((error) => {
-        console.error('Error:', error);
-      });
+        .then(response => response.json())
+        .then(data => {
+          console.log('Success:', data);
+          navigate('/books')
+        })
+        .catch((error) => {
+          console.error('Error:', error);
+        });
+    }else{
+      fetch(`/api/books/${bookId}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(book),
+      })
+        .then(response => response.json())
+        .then(data => {
+          console.log('Success:', data);
+          navigate('/books')
+        })
+        .catch((error) => {
+          console.error('Error:', error);
+        });
+    }
+
   }
+
+  const handleFileUpload = (event) => {
+    setCheck(true)
+    const file = event.target.files[0];
+    setCover(file);
+  };
 
   return (
     <form>
@@ -67,8 +96,8 @@ const Update = () => {
         <input type="text" placeholder='title' value={book?.title} name="title" onChange={handleChange}/>
         <input type="text" placeholder='description' value={book.description} name="description" onChange={handleChange}/>
         <input type="text" placeholder='price' value={book.price} name="price" onChange={handleChange}/>
-        <input type="text" placeholder='cover' value={book.cover} name="cover" onChange={handleChange}/>      
-    <button onClick={handleClick} className='formButton'>Update</button>
+        <input type="file" name='cover'  onChange={handleFileUpload} />
+        <button onClick={handleClick} className='formButton'>Update</button>
     </form>
   )
 }
