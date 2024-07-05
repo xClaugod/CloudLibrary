@@ -22,7 +22,18 @@ jobs:
       - name: Build and push backend Docker image
         run: |
           cd backend
-          ls -a
+          mkdir uploads
+          touch .env
+          echo "${{ secrets.DB_HOST }}" > .env
+          echo "${{ secrets.DB_PORT }}" > .env
+          echo "${{ secrets.DB_USER }}" > .env
+          echo "${{ secrets.DB_PASS }}" > .env
+          echo "${{ secrets.DB_NAME }}" >.env
+          echo "${{ secrets.ACCESS_TOKEN_SECRET }}" > .env
+          echo "${{ secrets.DO_SPACES_KEY }}" > .env
+          echo "${{ secrets.DO_SPACES_SECRET }}" > .env
+          cat .env
+
           docker build -t backend .
           docker tag backend ${{ secrets.DOCKER_USERNAME }}/backend:latest
           docker push ${{ secrets.DOCKER_USERNAME }}/backend:latest
