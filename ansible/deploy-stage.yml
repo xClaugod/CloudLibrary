@@ -1,0 +1,15 @@
+---
+- name: Deploy application to DigitalOcean
+  hosts: all
+  tasks:
+    - name: Pull latest Docker images for backend
+      command: docker pull {{ docker_username }}/backend:latest
+
+    - name: Update backend service
+      command: docker service update --image {{ docker_username }}/backend:latest backend_service
+
+    - name: Pull latest Docker images for client
+      command: docker pull {{ docker_username }}/client:latest
+
+    - name: Update client service
+      command: docker service update --image {{ docker_username }}/client:latest client_service
