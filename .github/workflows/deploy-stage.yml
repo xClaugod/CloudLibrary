@@ -22,6 +22,7 @@ jobs:
       - name: Build and push backend Docker image
         run: |
           cd backend
+          ls -a
           docker build -t backend .
           docker tag backend ${{ secrets.DOCKER_USERNAME }}/backend:latest
           docker push ${{ secrets.DOCKER_USERNAME }}/backend:latest
