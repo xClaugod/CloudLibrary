@@ -13,22 +13,6 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-
-      - name: Install backend dependencies
-        run: |
-          cd backend
-          npm install
-
-      - name: Install client dependencies and build
-        run: |
-          cd client
-          npm install
-          npm run build
-
       - name: Log in to Docker Hub
         uses: docker/login-action@v2
         with:
@@ -37,14 +21,18 @@ jobs:
 
       - name: Build and push backend Docker image
         run: |
-          docker build -t ${{ secrets.DOCKER_USERNAME }}/backend:latest -f backend/Dockerfile ./backend
+          cd backend
+          docker build -t backend .
+          docker tag backend ${{ secrets.DOCKER_USERNAME }}/backend:latest
           docker push ${{ secrets.DOCKER_USERNAME }}/backend:latest
 
       - name: Build and push client Docker image
         run: |
-          docker build -t ${{ secrets.DOCKER_USERNAME }}/client:latest -f client/Dockerfile ./client
+          cd client
+          docker build -t client .
+          docker tag client ${{ secrets.DOCKER_USERNAME }}/client:latest
           docker push ${{ secrets.DOCKER_USERNAME }}/client:latest
-
+          
       - name: Set up Ansible
         run: |
           sudo apt update
