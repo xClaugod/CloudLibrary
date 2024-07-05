@@ -37,16 +37,20 @@ jobs:
         run: |
           sudo apt update
           sudo apt install -y ansible
+          sudo apt install -y sshpass  # Installa sshpass per gestire la password della chiave SSH
+
 
       - name: Set up SSH
         run: |
           mkdir -p ~/.ssh
           echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_rsa
           chmod 600 ~/.ssh/id_rsa
+          echo "${{ secrets.SSH_PRIVATE_KEY_PASSWORD }}" > ~/.ssh/password.txt
+          chmod 600 ~/.ssh/password.txt
 
       - name: Run Ansible Playbook
         env:
           ANSIBLE_HOST_KEY_CHECKING: "false"
         run: |
-          echo "${{ secrets.ANSIBLE_INVENTORY }}" > inventory.ini
-          ansible-playbook -i inventory.ini ansible/deploy-stage.yml --private-key ~/.ssh/id_rsa
+            echo "${{ secrets.ANSIBLE_INVENTORY }}" > inventory.ini
+            sshpass -e ansible-playbook -i inventory.ini ansible/deploy-stage.yml --private-key ~/.ssh/id_rsa --ask-pass --extra-vars "ansible_ssh_pass=$(cat ~/.ssh/password.txt)"
