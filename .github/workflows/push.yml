@@ -7,29 +7,7 @@ on:
       - main
 
 jobs:
-  prepare-env:
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
-
-      - name: Create uploads directory
-        run: mkdir -p ./backend/uploads
-
-      - name: Create .env file
-        run: |
-          echo "DB_HOST=${{ secrets.DB_HOST }}" >> ./backend/.env
-          echo "DB_PORT=${{ secrets.DB_PORT }}" >> ./backend/.env
-          echo "DB_USER=${{ secrets.DB_USER }}" >> ./backend/.env
-          echo "DB_PASS=${{ secrets.DB_PASS }}" >> ./backend/.env
-          echo "DB_NAME=${{ secrets.DB_NAME }}" >> ./backend/.env
-          echo "ACCESS_TOKEN_SECRET=${{ secrets.ACCESS_TOKEN_SECRET }}" >> ./backend/.env
-          echo "DO_SPACE_KEY=${{ secrets.DO_SPACES_KEY }}" >> ./backend/.env
-          echo "DO_SPACES_SECRET=${{ secrets.DO_SPACES_SECRET }}" >> ./backend/.env
-
   build-and-push:
-    needs: prepare-env
     runs-on: ubuntu-latest
 
     strategy:
@@ -42,10 +20,25 @@ jobs:
             context: ./client/
             tag: xclaugod/client:latest
 
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+
+      - name: Create uploads directory
+        if: ${{ matrix.name == 'backend' }}
+        run: mkdir -p ./backend/uploads
+
+      - name: Create .env file
+        if: ${{ matrix.name == 'backend' }}
+        run: |
+          echo "DB_HOST=${{ secrets.DB_HOST }}" >> ./backend/.env
+          echo "DB_PORT=${{ secrets.DB_PORT }}" >> ./backend/.env
+          echo "DB_USER=${{ secrets.DB_USER }}" >> ./backend/.env
+          echo "DB_PASS=${{ secrets.DB_PASS }}" >> ./backend/.env
+          echo "DB_NAME=${{ secrets.DB_NAME }}" >> ./backend/.env
+          echo "ACCESS_TOKEN_SECRET=${{ secrets.ACCESS_TOKEN_SECRET }}" >> ./backend/.env
+          echo "DO_SPACE_KEY=${{ secrets.DO_SPACES_KEY }}" >> ./backend/.env
+          echo "DO_SPACES_SECRET=${{ secrets.DO_SPACES_SECRET }}" >> ./backend/.env
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
