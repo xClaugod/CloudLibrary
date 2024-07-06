@@ -1,0 +1,23 @@
+---
+
+- hosts: DO_server
+  become: true
+  tasks:
+
+    - name: Copy Kubernetes Manifests from GitHub
+      copy:
+        src: ../k8s/
+        dest: /home/ubuntu/k8s/
+        mode: "777"
+
+    - name: Apply Kubernetes Manifests
+      become: false
+      shell: "kubectl apply -f /home/ubuntu/k8s/"
+
+
+
+
+    
+
+    
+
