@@ -1,0 +1,36 @@
+name: deploy
+run-name: App Deploy
+
+on:
+  workflow_run:
+    workflows: ["dockerimage"]
+    types:
+      - completed
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    
+    #-----------------------------------------------#
+    #   Deploy on Digital Ocean by using Ansible    #
+    #-----------------------------------------------#
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup SSH Key
+        run: |
+          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ssh_key
+          chmod 600 ssh_key
+
+      - name: Deploy by using Ansible Playbook
+        uses: dawidd6/action-ansible-playbook@v2
+        with:
+          playbook: ./ansible/playbook.yml
+          key: ./ssh_key
+          inventory: |
+            [CL_server]
+            ${{ secrets.ANSIBLE_INVENTORY }}
