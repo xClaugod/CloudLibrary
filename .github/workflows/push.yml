@@ -1,0 +1,62 @@
+name: dockerimage
+run-name: Docker Image Push
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  prepare-env:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Create uploads directory
+        run: mkdir -p ./backend/uploads
+
+      - name: Create .env file
+        run: |
+          echo "DB_HOST=${{ secrets.DB_HOST }}" >> ./backend/.env
+          echo "DB_PORT=${{ secrets.DB_PORT }}" >> ./backend/.env
+          echo "DB_USER=${{ secrets.DB_USER }}" >> ./backend/.env
+          echo "DB_PASS=${{ secrets.DB_PASS }}" >> ./backend/.env
+          echo "DB_NAME=${{ secrets.DB_NAME }}" >> ./backend/.env
+          echo "ACCESS_TOKEN_SECRET=${{ secrets.ACCESS_TOKEN_SECRET }}" >> ./backend/.env
+          echo "DO_SPACE_KEY=${{ secrets.DO_SPACES_KEY }}" >> ./backend/.env
+          echo "DO_SPACES_SECRET=${{ secrets.DO_SPACES_SECRET }}" >> ./backend/.env
+
+  build-and-push:
+    needs: prepare-env
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        context: [./backend/, ./client/]
+        tag: [xclaugod/backend:latest, xclaugod/client:latest]
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log into Docker Hub registry
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+
+      - name: Build and Push Docker Image
+        uses: docker/build-push-action@v6
+        with:
+          platforms: linux/amd64,linux/arm64
+          tags: ${{ matrix.tag }}
+          context: ${{ matrix.context }}
+          push: true
