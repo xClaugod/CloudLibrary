@@ -27,6 +27,7 @@ jobs:
       - name: Create uploads directory
         if: ${{ matrix.name == 'backend' }}
         run: |
+          ls -la
           mkdir -p ./backend/uploads
           ls -la ./backend
 
