@@ -34,6 +34,7 @@ jobs:
 
     strategy:
       matrix:
+        image: [backend, client]
         context: [./backend/, ./client/]
         tag: [xclaugod/backend:latest, xclaugod/client:latest]
 
