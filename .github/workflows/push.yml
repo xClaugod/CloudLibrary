@@ -26,7 +26,9 @@ jobs:
 
       - name: Create uploads directory
         if: ${{ matrix.name == 'backend' }}
-        run: mkdir -p ./backend/uploads
+        run: |
+          mkdir -p ./backend/uploads
+          ls -la ./backend
 
       - name: Create .env file
         if: ${{ matrix.name == 'backend' }}
@@ -39,6 +41,7 @@ jobs:
           echo "ACCESS_TOKEN_SECRET=${{ secrets.ACCESS_TOKEN_SECRET }}" >> ./backend/.env
           echo "DO_SPACE_KEY=${{ secrets.DO_SPACES_KEY }}" >> ./backend/.env
           echo "DO_SPACES_SECRET=${{ secrets.DO_SPACES_SECRET }}" >> ./backend/.env
+          cat ./backend/.env
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
