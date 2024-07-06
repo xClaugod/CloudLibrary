@@ -62,5 +62,5 @@ jobs:
         with:
           platforms: linux/amd64,linux/arm64
           tags: ${{ matrix.tag }}
-          context: ${{ matrix.context }}
+          context: .
           push: true
