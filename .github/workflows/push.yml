@@ -34,9 +34,14 @@ jobs:
 
     strategy:
       matrix:
-        image: [backend, client]
-        context: [./backend/, ./client/]
-        tag: [xclaugod/backend:latest, xclaugod/client:latest]
+        include:
+          - name: backend
+            context: ./backend/
+            tag: xclaugod/backend:latest
+          - name: client
+            context: ./client/
+            tag: xclaugod/client:latest
+
 
     steps:
       - name: Checkout repository
