@@ -11,7 +11,13 @@ Check your collection whenerever you want, and keep an eye on how much you've sp
 
 This folder contains:
 - docker-compose, which contains configuration to deploy the entire app on docker;
-- backend/client.yaml files, which contains configuration to deploy the entire app on k8s.
+- backend/client.yaml files, which contains configuration to deploy the entire app on k8s;
+- k8s folder, which contains kubernetes pods configuration files;
+- ansible folder, which contains playbook file to restart k8s pods;
+- workflow folder, which contains github actions file;
+
+# Architecture 👷🏻
+[![Architecture.png](https://i.postimg.cc/kgH8zbmY/Architecture.png)](https://postimg.cc/PCmP8NN1)
 
 # Installation 🔧
 
