@@ -33,7 +33,7 @@ spec:
                       - backend
               topologyKey: "kubernetes.io/hostname"
       containers:
-        - image: xclaugod/backend:2.6
+        - image: xclaugod/backend:latest
           name: backend
           ports:
             - containerPort: 8800

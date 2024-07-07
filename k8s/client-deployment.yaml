@@ -31,7 +31,7 @@ spec:
                       - client
               topologyKey: "kubernetes.io/hostname"
       containers:
-        - image: xclaugod/client:1.1
+        - image: xclaugod/client:latest
           name: client
           ports:
             - containerPort: 3000
