@@ -21,16 +21,18 @@ jobs:
         run: |
           echo "${{ secrets.SSH_PRIVATE_KEY }}" > ssh_key
           chmod 600 ssh_key
-
       - name: Debug SSH Connection
         run: |
           ssh -i ssh_key -o StrictHostKeyChecking=no root@157.230.21.212 'echo "SSH connection successful"'
-
+      - name: Prepare Ansible Key
+        run: |
+          cp ssh_key ansible_key
+          chmod 600 ansible_key
       - name: Deploy by using Ansible Playbook
         uses: dawidd6/action-ansible-playbook@v2
         with:
           playbook: ./ansible/playbook.yml
-          key: ./ssh_key
+          key: ./ansible_key
           inventory: |
             [CL_server]
             ${{ secrets.ANSIBLE_INVENTORY }}
