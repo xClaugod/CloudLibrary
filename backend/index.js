@@ -194,12 +194,22 @@ app.post("/api/logout",(req,res)=>{
 app.post("/api/getUserInfo",(req,res)=>{
     const accessToken = req.headers.authorization.split(' ')[1];
     jsonwebtoken.verify(accessToken, process.env.ACCESS_TOKEN_SECRET, (err, user) => {
-        if (err) {
-            console.log("Unauthorized")
-            return res.status(401).json("Unauthorized")
-        }
-        const sqlSelect = "SELECT idUser,username,books.* FROM users left join books on idUser = fkUser where idUser = ?;"
-        db.query(sqlSelect,[user.idUser],(err,result)=>{
+            if (err) {
+                console.log("Unauthorized")
+                return res.status(401).json("Unauthorized")
+            }
+            const sqlSelect = `
+            SELECT u.idUser, u.username, b.*, sub.book_count, sub.total_price
+            FROM users u
+            LEFT JOIN books b ON u.idUser = b.fkUser
+            LEFT JOIN (
+                SELECT fkUser, COUNT(*) AS book_count, SUM(price) AS total_price
+                FROM books
+                GROUP BY fkUser
+            ) sub ON u.idUser = sub.fkUser
+            WHERE u.idUser = ?;
+            `;
+            db.query(sqlSelect,[user.idUser],(err,result)=>{
             if(err) return res.json(err)
             return res.json(result)
         })

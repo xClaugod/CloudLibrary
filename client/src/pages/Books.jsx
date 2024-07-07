@@ -5,6 +5,8 @@ import Cookies from 'js-cookie';
 const Books = () => {
   const [books, setBooks] = useState([])
   const [username, setUsername] = useState('')
+  const [booksCount,setBooksCount] = useState(0)
+  const [totalPrice,setTotalPrice] = useState(0)
 
   const navigate = useNavigate();
   const accessToken = Cookies.get('access_token');
@@ -33,6 +35,8 @@ const Books = () => {
                 price: item.price,
                 cover: item.cover
             })));
+            setTotalPrice(data[0].total_price)
+            setBooksCount(data[0].book_count)
         })
         .catch(error =>console.error('Error during fetch:', error));
 }, []);
@@ -82,7 +86,10 @@ const Books = () => {
         <div>
           <h2>Welcome back  </h2>
           <h3>{username}</h3>
+          <h3>Book counter: {booksCount}</h3>
+          <h3>Money spent: €{totalPrice}</h3>
         </div>
+
         <button className='btnMenu'><Link to={"/add"} className='menuLink'> Add new book</Link> </button>
         <button className='btnMenu' onClick={()=>logout()}>Logout</button>
       </div>
