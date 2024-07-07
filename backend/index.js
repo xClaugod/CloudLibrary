@@ -11,6 +11,9 @@ const fs = require ('fs');
 
 dotenv.config();
 
+console.log("eccola",DO_SPACES_KEY)
+console.log("anche",DO_SPACES_SECRET)
+
 const app = express()
 app.use(cors({
     origin: '*',
@@ -56,6 +59,8 @@ const s3 = new aws.S3({
   accessKeyId: process.env.DO_SPACES_KEY,
   secretAccessKey: process.env.DO_SPACES_SECRET
 });
+
+console.log("created",s3)
 
 app.get("/",(req,res)=>{
     res.json("Welcome to the books library backend!")

@@ -35,8 +35,8 @@ const Books = () => {
                 price: item.price,
                 cover: item.cover
             })));
-            setTotalPrice(data[0].total_price)
-            setBooksCount(data[0].book_count)
+            if(data[0].total_price) setTotalPrice(data[0].total_price)
+            if(data[0].book_count) setBooksCount(data[0].book_count)
         })
         .catch(error =>console.error('Error during fetch:', error));
 }, []);
@@ -49,7 +49,8 @@ const Books = () => {
       .then(response => response.json())
       .then(data => {
         console.log('Success:', data);
-        setBooks(books.filter(book => book.idBook !== id))
+        window.location.reload();
+
       })
       .catch((error) => {
         console.error('Error:', error);
