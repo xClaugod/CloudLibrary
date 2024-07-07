@@ -12,10 +12,6 @@ jobs:
     runs-on: ubuntu-latest
 
     if: ${{ github.event.workflow_run.conclusion == 'success' }}
-    
-    #-----------------------------------------------#
-    #   Deploy on Digital Ocean by using Ansible    #
-    #-----------------------------------------------#
 
     steps:
       - name: Checkout repository
@@ -25,6 +21,11 @@ jobs:
         run: |
           echo "${{ secrets.SSH_PRIVATE_KEY }}" > ssh_key
           chmod 600 ssh_key
+          echo -e "Host *\n\tStrictHostKeyChecking no\n" > ~/.ssh/config
+
+      - name: Debug SSH Connection
+        run: |
+          ssh -i ssh_key -o StrictHostKeyChecking=no root@157.230.21.212 'echo "SSH connection successful"'
 
       - name: Deploy by using Ansible Playbook
         uses: dawidd6/action-ansible-playbook@v2
