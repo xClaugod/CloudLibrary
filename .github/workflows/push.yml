@@ -40,7 +40,7 @@ jobs:
           echo "DB_PASS=${{ secrets.DB_PASS }}" >> ./backend/.env
           echo "DB_NAME=${{ secrets.DB_NAME }}" >> ./backend/.env
           echo "ACCESS_TOKEN_SECRET=${{ secrets.ACCESS_TOKEN_SECRET }}" >> ./backend/.env
-          echo "DO_SPACE_KEY=${{ secrets.DO_SPACES_KEY }}" >> ./backend/.env
+          echo "DO_SPACES_KEY=${{ secrets.DO_SPACES_KEY }}" >> ./backend/.env
           echo "DO_SPACES_SECRET=${{ secrets.DO_SPACES_SECRET }}" >> ./backend/.env
           cat ./backend/.env
           cat ./backend/Dockerfile
